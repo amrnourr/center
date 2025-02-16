@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Center</title>
+    <style>
+      * {
+        font-family: Sans-Serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      section {
+        display: none;
+        padding-top: 100px;
+        background: #eee;
+        & h1 {
+          text-align: center;
+        }
+      }
+
+      section:target {
+        display: block;
+      }
+
+      body:not(:has(:target)) #landing {
+        display: block;
+      }
+
+      .rent {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+      }
+      
+      button {
+        padding: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        outline: none;
+        background: gold;
+        border-radius: 5px;
+      }
+
+      #landing {
+        background: darkblue;
+        color: gold;
+        height: calc(100dvh - 100px);
+
+        & div {
+          display: flex;
+          flex-direction: column;
+          text-align: center;
+
+          & * {
+            margin: 20px;
+          }
+
+          & a {
+            padding: 10px;
+            border-radius: 5px;
+            background: gold;
+            color: black;
+            text-decoration: none;
+            width: fit-content;
+            margin: auto;
+          }
+        }
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: calc(100% - 40px);
+        padding: 20px;
+        background: darkblue;
+
+        & a {
+          color: gold;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        & h2 a {
+          font-weight: bold;
+          font-size: 20px;
+        }
+
+        & ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          & li {
+            margin: 10px;
+          }
+        }
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+
+        & .card {
+          width: calc(50% - 42px);
+          padding: 10px;
+          margin: 10px;
+          border: 1px solid black;
+
+          & div {
+            display: flex;
+            justify-content: space-evenly;
+          }
+        }
+      }
+    </style>
+    <script src="../../React_Project/react.js"></script>
+    <script src="../../React_Project/react-dom.js"></script>
+    <script src="../../React_Project/babel.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      let cart = [];
+
+      let Head = (props) => (
+        <header>
+          <h2>
+            <a href="#landing" target="_self">
+              C
+            </a>
+          </h2>
+          <ul>
+            <li>
+              <a href="#venue" target="_self">
+                Venue
+              </a>
+            </li>
+            <li>
+              <a href="#add_ons" target="_self">
+                Add-ons
+              </a>
+            </li>
+            <li>
+              <a href="#meals" target="_self">
+                Meals
+              </a>
+            </li>
+            <li>
+              <a href={props.details} target="_self">
+                Details
+              </a>
+            </li>
+          </ul>
+        </header>
+      );
+
+      let Card = (props) => {
+        let [num, setNum] = React.useState(0);
+
+        React.useEffect(() => {
+          let el = cart.filter((el) => el.id == props.id)[0];
+
+          if (el) {
+            el.num = num;
+          } else if (num != 0) {
+            cart = [
+              ...cart,
+              {
+                id: props.id,
+                num: num,
+              },
+            ];
+          }
+        }, [num]);
+
+        return (
+          <div className="card">
+            <img src={props.img} alt={props.name} loading="lazy" width="100%" />
+            <h3>{props.name}</h3>
+            <p>{props.price}</p>
+            <div>
+              <button
+                disabled={num <= 0 ? 1 : 0}
+                onClick={() => setNum((num -= 1))}
+              >
+                -
+              </button>
+              {num}
+              <button
+                disabled={num >= props.max ? 1 : 0}
+                onClick={() => setNum((num += 1))}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      let Page = (props) => (
+        <section id={props.id}>
+          <h1>{props.id + " section"}</h1>
+          <div className="container">{props.children}</div>
+        </section>
+      );
+
+      let Land = () => (
+        <section id="landing">
+          <div>
+            <h1>The Center</h1>
+            <p>Your best choice!</p>
+            <a href="#venue">Get started</a>
+          </div>
+        </section>
+      );
+
+      let App = () => {
+        let [link, setLink] = React.useState("#");
+        let [data, setData] = React.useState([]);
+
+        React.useEffect(() => {
+          fetch("./db.json")
+            .then((res) => res.json())
+            .then((data) => setData(data))
+            .catch((err) => console.error(err));
+        }, []);
+
+        return (
+          <>
+            <Head details={link} />
+            <Land />
+            {data.map((el, i) => (
+              <Page key={i} id={el[0]}>
+                {el[1].map((item, j) => (
+                  <Card
+                    key={j}
+                    img={item.img}
+                    name={item.name}
+                    price={item.price}
+                    max={item.max}
+                    id={item.id}
+                  />
+                ))}
+              </Page>
+            ))}
+            <button
+              onClick={() =>
+                setLink("./cepDetails.html?d=" + JSON.stringify(cart))
+              }
+              className='rent'
+            >
+              Rent
+            </button>
+          </>
+        );
+      };
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

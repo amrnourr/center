@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title></title>
+    <style></style>
+  </head>
+  <table border="1" cellpadding="10px">
+    <thead>
+      <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Number</th>
+          <th>Price</th>
+          <th>Total Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Total</th>
+        <td class="total" colspan="4"></td>
+      </tr>
+    </tbody>
+  </table>
+  <body>
+    <script>
+      let number = 0;
+      let total = document.querySelector('.total');
+
+      let build = (data, wanted) => {
+        let tr = document.createElement('tr');
+        number += data.price;
+        total.textContent = number + '$ / hour';
+
+        tr.innerHTML = `
+          <th>#</th>
+          <td colspan="1">${data.name}</td>
+          <td colspan="1">${wanted.num}</td>
+          <td colspan="1">${data.price + '$'}</td>
+          <td colspan="1">${wanted.num * data.price}</td>
+        `;
+        document.querySelector('table tbody').append(tr);
+      }
+
+      let details = data => {
+        let encodedData = new URLSearchParams(window.location.search).get("d");
+        let wanted = JSON.parse(decodeURIComponent(encodedData)) || '';
+
+        let a = wanted.filter(el => el.num != 0);
+
+        data.map(x => {
+          x[1].map(y => {
+            a.map(b => {
+              if (b.id == y.id) build(y, b);
+            });
+          });
+        });
+      };
+
+      fetch('./db.json')
+        .then(res => res.json())
+        .then(data => details(data))
+        .catch(err => console.error(err));
+    </script>
+  </body>
+</html>
