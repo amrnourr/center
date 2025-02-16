@@ -37,7 +37,7 @@
         bottom: 20px;
         right: 20px;
       }
-      
+
       button {
         padding: 5px;
         display: flex;
@@ -131,9 +131,15 @@
         }
       }
     </style>
-    <script src="../../React_Project/react.js"></script>
-    <script src="../../React_Project/react-dom.js"></script>
-    <script src="../../React_Project/babel.js"></script>
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
@@ -265,7 +271,7 @@
               onClick={() =>
                 setLink("./cepDetails.html?d=" + JSON.stringify(cart))
               }
-              className='rent'
+              className="rent"
             >
               Rent
             </button>
